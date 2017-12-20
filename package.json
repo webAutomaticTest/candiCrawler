@@ -1,0 +1,32 @@
+{
+  "name": "candicrawler",
+  "version": "1.0.0",
+  "description": "get scenarios from rabbit then play and crawl candidate actions",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webAutomaticTest/candiCrawler.git"
+  },
+  "keywords": [
+    "candidate",
+    "actions"
+  ],
+  "author": "wei",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/webAutomaticTest/candiCrawler/issues"
+  },
+  "homepage": "https://github.com/webAutomaticTest/candiCrawler#readme",
+  "dependencies": {
+    "amqplib": "^0.5.2",
+    "nightmare": "^2.10.0",
+    "promise": "^8.0.1",
+    "request-promise": "^4.2.2",
+    "wat_action_nightmare": "^1.0.14",
+    "winston": "^2.4.0",
+    "yargs": "^10.0.3"
+  }
+}
