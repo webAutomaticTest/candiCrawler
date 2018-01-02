@@ -38,6 +38,8 @@ RUN apt-get install -y \
 
 RUN mkdir /tmp/crawl
 WORKDIR /tmp/crawl
+RUN mkdir routes
+COPY routes/*.js routes/
 RUN mkdir screen
 COPY index.js .
 COPY Crawler.js .
@@ -45,8 +47,11 @@ COPY crawling.js .
 COPY htmlAnalysis.js .
 COPY package.json .
 COPY saveCandidateActions.js .
+COPY CandidateSaver.js .
 RUN npm install
 
 ENV DEBUG=nightmare*
+
+EXPOSE 8091
 
 CMD xvfb-run -a --server-args='-screen 0 1024x768x24' node ./index.js --mongo=mongo --rabbit=rabbit

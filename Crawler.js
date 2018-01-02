@@ -29,9 +29,10 @@ class Crawler{
 			this.ch.assertQueue(QUEUE_NAME, { durable: true });
 			winston.info('Queue Created');
 			this.ch.prefetch(1);
-			this.ch.consume(QUEUE_NAME, scenarioMsg => {
+			this.ch.consume(QUEUE_NAME, async (scenarioMsg) => {
 				if (scenarioMsg !== null) {
-					playScenarioCrawler.call(this, scenarioMsg);
+					await playScenarioCrawler.call(this, scenarioMsg);
+					await this.ch.ack(scenarioMsg);										
 				}
 			});
 		})
@@ -49,26 +50,25 @@ class Crawler{
 
 }
 
-function playScenarioCrawler(scenarioMsg) {
+async function playScenarioCrawler(scenarioMsg) {
 	const scenarioContent = JSON.parse(scenarioMsg.content.toString());
-	winston.info(`Crawler Begins To Play A Scenario : ${scenarioContent._id}`);
-	// this.bid = scenarioContent.bid;
-	
-	scenarioContent.wait = 1000;
+	winston.info(`scenarioContent is : ${scenarioContent}`);
 
-	const actions = createWATScenario(scenarioContent);
+	var sce = new wat_action.Scenario();
+	sce.actions = scenarioContent.actions;
+	sce.wait = 1000;
+	const actions = await createWATScenario(sce);
 	const scenario = new wat_action.Scenario(actions);
-	// this.abid = actions.length - 1;
-	// console.log("abid is :"+this.abid);
-	this.parameter = {"bid": scenarioContent.bid, "abid": actions.length - 1};
+	this.parameter = {"bid": scenarioContent.bid, "abid": scenarioContent.actions.length - 1};
+	winston.info(`scenario to crawl is : ${scenarioContent}`);
 
-	var nightmare = new Nightmare({ show: true });
-	scenario.attachTo(nightmare)
+	var nightmare = new Nightmare({ show: false });
+	await scenario.attachTo(nightmare)
 		.url()
 		.end()
-		.then((url) => {
-			console.log(url);			
-			crawling.crawlAndSave(this.dbUrl, url, this.parameter);
+		.then( async (url) => {
+			console.log('crawling url is ' + url);			
+			await crawling.crawlAndSave(this.dbUrl, url, this.parameter);
 		})
 		.catch((e) => {
 			winston.info('crawl candidate encounter error!!! in gen_candi_actions method');
@@ -77,9 +77,7 @@ function playScenarioCrawler(scenarioMsg) {
 
 }
 
-function createWATScenario(scenario) {
-	// var scenario = new wat_action.Scenario();
-	// scenario.actions = scenarioActions;
+function createWATScenario(scenario) {	
 	
 	var wait = scenario.wait || 0;
 	var cssSelector = scenario.cssselector || 'watId';

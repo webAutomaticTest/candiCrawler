@@ -2,18 +2,20 @@
 function crawlAndSave(dbUrl, url, parameter){
 
 	const Nightmare = require('nightmare');
-	const Promise = require('promise');
 	const htmlAnalysis = require('./htmlAnalysis.js');
 	const watlib = require('wat_action_nightmare');
 	var nightmare = new Nightmare({ show: false });
-	var saveCandidateActions = require('./saveCandidateActions.js');
+	// var saveCandidateActions = require('./saveCandidateActions.js');
+	const CandidateSaver = require('./CandidateSaver.js').CandidateSaver;
+
 	var scenario = new watlib.Scenario();
 	this.parameter = parameter;
 
 	nightmare.goto(url).screenshot()
 	.then(() => {
 		return nightmare.evaluate(htmlAnalysis).end();
-	}).then(analysisResult => {
+	})
+	.then(analysisResult => {
 
 		analysisResult.inputText.forEach(inputText => {
 			scenario.addAction(new watlib.TypeAction(inputText.selector,"inputText"));
@@ -35,14 +37,16 @@ function crawlAndSave(dbUrl, url, parameter){
 			scenario.addAction(new watlib.ClickAction(inputToClick.selector));
 		});
 
-		// scenarioJson = JSON.stringify(JSON.parse(scenario.toJSON()),null,2);
+		scenarioJson = JSON.stringify(JSON.parse(scenario.toJSON()),null,2);
+		console.log("crawl actions result in scenarioJson format: ");
+		// console.log(scenarioJson);
 		
-		saveCandidateActions.saveCandidateActions(scenario, this.parameter);
 		
-		// return Promise.resolve(scenario);
-
-		
-	}).catch(err => {
+		var candidateSaver = new CandidateSaver(dbUrl, scenario, parameter);
+		candidateSaver.saveCandidateActions();
+				
+	})
+	.catch(err => {
 		console.log("err in crawl_action ! crawl");
 		console.log(err);
 	});
