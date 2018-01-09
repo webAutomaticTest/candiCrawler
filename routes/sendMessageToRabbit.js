@@ -5,6 +5,7 @@ const QUEUE_NAME = 'crawl_queue';
 
 module.exports.init = function(serverNames, webServer) {
 	const rmqUrl = `amqp://${serverNames.rabbitServerName}`;
+	var corr = generateUuid();
 	
 	webServer
 	.post('/crawlNow/', (req, res) => {
@@ -24,16 +25,24 @@ module.exports.init = function(serverNames, webServer) {
 
 			var channel = promizesResults[1];
 			channel.assertQueue(QUEUE_NAME, { durable: true })
-			.then(ok => {
+			.then(async (ok) => {
 				if (ok) {
-					return channel.sendToQueue(QUEUE_NAME, Buffer.from(msg), {persistent: true});
+					await channel.consume(QUEUE_NAME, (msgFeedback) => {
+						if (msgFeedback.properties.correlationId == corr) {
+							// console.log(' [.] Got %s', msg.content.toString());
+							console.log("test msgFeedback!");
+							setTimeout(function() { 
+								channel.close();
+								res.status(200).send(`play request sent for scenario finish? :${msgFeedback.content.toString()}`).end(); 
+								// process.exit(0) 
+							}, 500);
+						}
+					}, {noAck: true});
+					// return channel.sendToQueue(QUEUE_NAME, Buffer.from(msg), {persistent: true});
+					return channel.sendToQueue(QUEUE_NAME,new Buffer(msg),{ correlationId: corr, replyTo: QUEUE_NAME });
 				} else {
 					return Promise.reject(ok);
 				}
-			})
-			.then(() => {
-				channel.close();
-				res.status(200).send(`play request sent for scenario ${msg}`).end();
 			})
 			.catch ((err) =>{
 				channel.close();
@@ -47,5 +56,12 @@ module.exports.init = function(serverNames, webServer) {
 			res.status(500).send(err).end();
 		});
 	});
+
+	function generateUuid() {
+		console.log("math random");
+		return Math.random().toString() +
+		Math.random().toString() +
+		Math.random().toString();
+	}
 
 };

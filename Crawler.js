@@ -32,6 +32,9 @@ class Crawler{
 			this.ch.consume(QUEUE_NAME, async (scenarioMsg) => {
 				if (scenarioMsg !== null) {
 					await playScenarioCrawler.call(this, scenarioMsg);
+					await this.ch.sendToQueue(scenarioMsg.properties.replyTo,
+						new Buffer("true"),
+						{correlationId: scenarioMsg.properties.correlationId});
 					await this.ch.ack(scenarioMsg);										
 				}
 			});
