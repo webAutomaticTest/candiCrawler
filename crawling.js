@@ -15,35 +15,35 @@ function crawlAndSave(dbUrl, url, parameter){
 	.then(() => {
 		return nightmare.evaluate(htmlAnalysis).end();
 	})
-	.then(analysisResult => {
+	.then( async (analysisResult) => {
 
-		analysisResult.inputText.forEach(inputText => {
+		await analysisResult.inputText.forEach(inputText => {
 			scenario.addAction(new watlib.TypeAction(inputText.selector,"inputText"));
 		});
 
-		analysisResult.inputPassword.forEach(inputPassword => {
+		await analysisResult.inputPassword.forEach(inputPassword => {
 			scenario.addAction(new watlib.TypeAction(inputPassword.selector,"inputPassword"));
 		});
 
-		analysisResult.textarea.forEach(textarea => {
+		await analysisResult.textarea.forEach(textarea => {
 			scenario.addAction(new watlib.TypeAction(textarea.selector,"textarea"));
 		});
 
-		analysisResult.selectorsA.forEach(selectorsA => {
+		await analysisResult.selectorsA.forEach(selectorsA => {
 			scenario.addAction(new watlib.ClickAction(selectorsA.selector));
 		});
 
-		analysisResult.inputToClick.forEach(inputToClick => {
+		await analysisResult.inputToClick.forEach(inputToClick => {
 			scenario.addAction(new watlib.ClickAction(inputToClick.selector));
 		});
 
-		scenarioJson = JSON.stringify(JSON.parse(scenario.toJSON()),null,2);
-		console.log("crawl actions result in scenarioJson format: ");
+		scenarioJson = await JSON.stringify(JSON.parse(scenario.toJSON()),null,2);
+		await console.log("crawl actions result in scenarioJson format: ");
 		// console.log(scenarioJson);
 		
 		
 		var candidateSaver = new CandidateSaver(dbUrl, scenario, parameter);
-		candidateSaver.saveCandidateActions();
+		await candidateSaver.saveCandidateActions();
 				
 	})
 	.catch(err => {

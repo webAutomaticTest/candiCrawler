@@ -29,16 +29,12 @@ module.exports.init = function(serverNames, webServer) {
 				if (ok) {
 					await channel.consume(QUEUE_NAME, (msgFeedback) => {
 						if (msgFeedback.properties.correlationId == corr) {
-							// console.log(' [.] Got %s', msg.content.toString());
-							console.log("test msgFeedback!");
 							setTimeout(function() { 
 								channel.close();
 								res.status(200).send(`play request sent for scenario finish? :${msgFeedback.content.toString()}`).end(); 
-								// process.exit(0) 
 							}, 500);
 						}
 					}, {noAck: true});
-					// return channel.sendToQueue(QUEUE_NAME, Buffer.from(msg), {persistent: true});
 					return channel.sendToQueue(QUEUE_NAME,new Buffer(msg),{ correlationId: corr, replyTo: QUEUE_NAME });
 				} else {
 					return Promise.reject(ok);

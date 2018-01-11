@@ -46,7 +46,6 @@ COPY Crawler.js .
 COPY crawling.js .
 COPY htmlAnalysis.js .
 COPY package.json .
-COPY saveCandidateActions.js .
 COPY CandidateSaver.js .
 RUN npm install
 
