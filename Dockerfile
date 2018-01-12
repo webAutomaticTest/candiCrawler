@@ -38,8 +38,6 @@ RUN apt-get install -y \
 
 RUN mkdir /tmp/crawl
 WORKDIR /tmp/crawl
-RUN mkdir routes
-COPY routes/*.js routes/
 RUN mkdir screen
 COPY index.js .
 COPY Crawler.js .
