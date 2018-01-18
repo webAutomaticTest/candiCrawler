@@ -1,6 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 const winston = require('winston');
 const async = require('async');
+const ObjectID = require('mongodb').ObjectID;
 
 class CandidateSaver{
 	constructor(dbUrl, scenario, parameter) {
@@ -86,16 +87,16 @@ class CandidateSaver{
 					for (let i = 0; i < this.actions.length; i++) {
 
 						var can_action = {};
-						can_action.bid = await this.parameter.bid;
-						can_action.abid = await this.parameter.abid;
-						can_action.aid = await this.actions[i].aid;
+						can_action.bid = await ObjectID(this.parameter.bid);
+						can_action.preIndex = await this.parameter.preIndex;
+						can_action.aid = await ObjectID(this.actions[i].aid);
 						can_action.action = await this.actions[i].action;
 
 						await promiseSaveEachCandidate.push(
 							candidateCollection.findOneAndReplace(
 							{ 
 								'bid': can_action.bid,
-								'abid': can_action.abid,
+								'preIndex': can_action.preIndex,
 								'aid': can_action.aid,
 								'action': can_action.action 
 							},

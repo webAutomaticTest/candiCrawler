@@ -62,7 +62,7 @@ async function playScenarioCrawler(scenarioMsg) {
 	sce.wait = 1000;
 	const actions = await createWATScenario(sce);
 	const scenario = new wat_action.Scenario(actions);
-	this.parameter = {"bid": scenarioContent.bid, "abid": scenarioContent.actions.length - 1};
+	this.parameter = {"bid": scenarioContent.bid, "preIndex": scenarioContent.actions.length - 1};
 	winston.info(`scenario to crawl is : ${scenarioContent}`);
 
 	var nightmare = new Nightmare({ show: false });
