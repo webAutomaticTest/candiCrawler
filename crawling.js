@@ -1,5 +1,5 @@
 
-function crawlAndSave(dbUrl, url, parameter){
+async function crawlAndSave(dbUrl, url, parameter){
 
 	const Nightmare = require('nightmare');
 	const htmlAnalysis = require('./htmlAnalysis.js');
@@ -11,7 +11,7 @@ function crawlAndSave(dbUrl, url, parameter){
 	var scenario = new watlib.Scenario();
 	this.parameter = parameter;
 
-	nightmare.goto(url).screenshot()
+	await nightmare.goto(url).screenshot()
 	.then(() => {
 		return nightmare.evaluate(htmlAnalysis).end();
 	})
